@@ -35,39 +35,6 @@ def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
     remoteto.push(refspec=dstbranch)
 
 
-REPOURL="https://github.com/freifunk-berlin/openwrt-core.git"
-REPODIR="/tmp/gitsync"
-REPOFROM="upstream"
-REPOTO="origin"
-
-REPOS = {
-    "https://github.com/freifunk-berlin/openwrt-core.git" : {
-	"user" : "SAm0815",
-	"pass" : "test",
-	"branches" : {
-	    "master" : "master",
-	    "lede-17.01" : "lede-17.01",
-	        },
-	    },
-    "https://github.com/freifunk-berlin/openwrt-luci.git" : {
-	"user" : "SAm0815",
-	"pass" : "test",
-	"branches" : {
-	    "master" : "master",
-		},
-	    },
-        }
-for repourl, repodata in REPOS.items():
-#    print(repourl, repodata)
-    print(repourl)
-    print(repodata["user"])
-    print(repodata["pass"])
-    print(repodata["branches"])
-    syncbranches=repodata["branches"]
-    for srcbranch, dstbranch in syncbranches.items():
-#        print(srcbranch)
-        print('sync %s to %s' % (srcbranch, dstbranch))
-
 REPOLIST = [
     {
 #    "srcrepo" : "https://github.com/openwrt/openwrt.git",
@@ -106,28 +73,3 @@ for repodata in REPOLIST:
         print('sync %s to %s' % (srcbranch, dstbranch))
 #        print('sync %s/%s to %s/%s as user %s' % (repodata["srcrepo"], srcbranch, repodata["dstrepo"], dstbranch, repodata["user"]) )
         syncrepo( repodata["workdir"], repodata["user"], repodata["pass"], repodata["srcremote"], repodata["dstremote"], srcbranch, dstbranch)
-
-exit(0)
-
-#https://stackoverflow.com/questions/44784828/gitpython-git-authentication-using-user-and-password?noredirect=1&lq=1
-project_dir = os.path.dirname(os.path.abspath(__file__))
-os.environ['GIT_ASKPASS'] = os.path.join(project_dir, 'askpass.py')
-#os.environ['GIT_USERNAME'] = username
-#os.environ['GIT_PASSWORD'] = getpass()
-
-
-#repo = Repo(self.rorepo.working_tree_dir)
-#assert not repo.bare
-#repo = Repo.init(os.path.join(REPODIR, 'bare-repo'), bare=True)
-#assert repo.bare
-
-#repo = Repo.clone_from(REPOURL, REPODIR)
-repo = Repo(os.path.join(REPODIR, 'openwrt'))
-assert not repo.bare
-print (repo.remotes)
-remotefrom=repo.remote(name=REPOFROM)
-remoteto=repo.remote(name=REPOTO)
-#remotefrom.fetch(refspec=REPOFROM)
-remotefrom.fetch()
-remotefrom.pull(refspec="master")
-remoteto.push(refspec="master")
