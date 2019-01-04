@@ -5,6 +5,8 @@
 from git import Repo, Remote
 import os
 
+REPODIR="/tmp/gitsync"
+
 def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
     #https://stackoverflow.com/questions/44784828/gitpython-git-authentication-using-user-and-password?noredirect=1&lq=1
     project_dir = os.path.dirname(os.path.abspath(__file__))
