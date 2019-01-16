@@ -23,7 +23,7 @@ def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
         print("branch '%s' exists" % dstbranch)
     else:
         print("branch '%s' needs to be created" % dstbranch)
-        repo.create_head(dstbranch, srcbranch)
+        repo.create_head(dstbranch, src+"/"+srcbranch)
 #    workbranch = repo.heads[srcbranch].checkout(force=True)
 #    print(workbranch)
 #    workbranch.set_commit(srcbranch).commit
