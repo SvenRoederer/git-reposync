@@ -149,8 +149,8 @@ COMMITS_FINAL   = {}
 
 
 TODAY = datetime.datetime.now()
-YESTERDAY = TODAY-datetime.timedelta(days=1)
-print(YESTERDAY)
+DATELIMIT = TODAY-datetime.timedelta(days=0)
+print(DATELIMIT)
 
 shellcmd = "(cd %s; git checkout '%s')" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["workbranch"])
 print(shellcmd)
@@ -165,9 +165,9 @@ COMMITS_INITIAL["packages_berlin"] = getCurrentCommit("packages_berlin")
 COMMITS_INITIAL["gluon"] = getCurrentCommit("gluon")
 print("initial: %s" % (COMMITS_INITIAL))
 
-COMMITS_FINAL["openwrt"] = getYesterdaysLastCommit("openwrt", YESTERDAY)
-COMMITS_FINAL["packages"] = getYesterdaysLastCommit("packages", YESTERDAY)
-COMMITS_FINAL["luci"] = getYesterdaysLastCommit("luci", YESTERDAY)
+COMMITS_FINAL["openwrt"] = getYesterdaysLastCommit("openwrt", DATELIMIT)
+COMMITS_FINAL["packages"] = getYesterdaysLastCommit("packages", DATELIMIT)
+COMMITS_FINAL["luci"] = getYesterdaysLastCommit("luci", DATELIMIT)
 print("target: %s" % (COMMITS_FINAL))
 
 updateCommit("openwrt", COMMITS_INITIAL["openwrt"], COMMITS_FINAL["openwrt"])
