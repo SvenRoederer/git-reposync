@@ -155,6 +155,12 @@ print(DATELIMIT)
 shellcmd = "(cd %s; git checkout '%s')" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["workbranch"])
 print(shellcmd)
 result = os.popen(shellcmd).readlines()
+shellcmd = "(cd %s; git fetch )" % (os.path.join(REPODIR, REPOLIST["repodir"]))
+print(shellcmd)
+result = os.popen(shellcmd).readlines()
+shellcmd = "(cd %s; git pull )" % (os.path.join(REPODIR, REPOLIST["repodir"]))
+print(shellcmd)
+result = os.popen(shellcmd).readlines()
 
 
 COMMITS_INITIAL["openwrt"] = getCurrentCommit("openwrt")
