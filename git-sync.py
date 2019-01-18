@@ -5,7 +5,10 @@
 from git import Repo, Remote
 import os
 
-REPODIR="/tmp/gitsync"
+import syncconfig
+
+REPODIR = syncconfig.REPODIR
+REPOLIST = syncconfig.REPOLIST
 
 def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
     #https://stackoverflow.com/questions/44784828/gitpython-git-authentication-using-user-and-password?noredirect=1&lq=1
@@ -36,33 +39,8 @@ def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
     remotefrom.pull(refspec=srcbranch)
     remoteto.push(refspec=dstbranch)
 
+############## main ###################
 
-REPOLIST = [
-    {
-#    "srcrepo" : "https://github.com/openwrt/openwrt.git",
-#    "dstrepo" : "https://github.com/freifunk-berlin/openwrt-core.git",
-    "srcremote" : "upstream",
-    "dstremote" : "origin",
-    "workdir" : "openwrt", 
-    "user" : "SAm0815",
-    "pass" : "test",
-    "branches" : {
-        "master" : "master",
-        "lede-17.01" : "lede-17.01",
-        },
-    }, {
-#    "srcrepo" : "https://github.com/openwrt/luci.git",
-#    "dstrepo" : "https://github.com/freifunk-berlin/openwrt-luci.git",
-    "srcremote" : "upstream",
-    "dstremote" : "origin",
-    "workdir" : "luci", 
-    "user" : "SAm0815",
-    "pass" : "test",
-    "branches" : {
-        "master" : "master",
-        },
-    },
-]
 for repodata in REPOLIST:
     print(repodata)
 #    print(repodata["srcrepo"])
