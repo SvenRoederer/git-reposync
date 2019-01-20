@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 # https://gitpython.readthedocs.io/en/stable/tutorial.html#tutorial-label
 
