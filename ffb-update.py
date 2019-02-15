@@ -163,9 +163,9 @@ COMMITS_INITIAL["packages_berlin"] = getCurrentCommit("packages_berlin")
 COMMITS_INITIAL["gluon"] = getCurrentCommit("gluon")
 print("initial: %s" % (COMMITS_INITIAL))
 
-COMMITS_FINAL["openwrt"] = getYesterdaysLastCommit("openwrt", DATELIMIT)
-COMMITS_FINAL["packages"] = getYesterdaysLastCommit("packages", DATELIMIT)
-COMMITS_FINAL["luci"] = getYesterdaysLastCommit("luci", DATELIMIT)
+COMMITS_FINAL["openwrt"] = getYesterdaysLastCommit("openwrt", DATELIMIT, UPDATES["openwrt"]["branch"])
+COMMITS_FINAL["packages"] = getYesterdaysLastCommit("packages", DATELIMIT, UPDATES["packages"]["branch"])
+COMMITS_FINAL["luci"] = getYesterdaysLastCommit("luci", DATELIMIT, UPDATES["luci"]["branch"])
 print("target: %s" % (COMMITS_FINAL))
 
 updateCommit("openwrt", COMMITS_INITIAL["openwrt"], COMMITS_FINAL["openwrt"])
