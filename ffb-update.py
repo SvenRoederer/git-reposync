@@ -150,7 +150,7 @@ result = os.popen(shellcmd).readlines()
 shellcmd = "(cd %s; git fetch )" % (os.path.join(REPODIR, REPOLIST["repodir"]))
 print(shellcmd)
 result = os.popen(shellcmd).readlines()
-shellcmd = "(cd %s; git pull )" % (os.path.join(REPODIR, REPOLIST["repodir"]))
+shellcmd = "(cd %s; git reset --hard %s/%s )" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["srcremote"], REPOLIST["workbranch"])
 print(shellcmd)
 result = os.popen(shellcmd).readlines()
 
