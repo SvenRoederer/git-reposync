@@ -5,11 +5,7 @@
 from git import Repo, Remote
 import os, sys
 import getopt
-
-import syncconfig
-
-REPODIR = syncconfig.REPODIR
-REPOLIST = syncconfig.REPOLIST
+from importlib import import_module
 
 def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
     #https://stackoverflow.com/questions/44784828/gitpython-git-authentication-using-user-and-password?noredirect=1&lq=1
@@ -42,7 +38,7 @@ def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
 
 ############## main ###################
 
-configfile = "syncconfig.py"
+configfile = "syncconfig"
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hf:",["conf="])
 except getopt.GetoptError:
@@ -53,9 +49,13 @@ for opt, arg in opts:
         print 'test.py -f <configfile>'
         sys.exit()
     elif opt in ("-f", "--ifile"):
-        config = arg
-print 'Config file is "', configfile
+        configfile = arg
+print('Config file is ', configfile)
 
+syncconfig = import_module(configfile)
+
+REPODIR = syncconfig.REPODIR
+REPOLIST = syncconfig.REPOLIST
 
 for repodata in REPOLIST:
     print(repodata)
