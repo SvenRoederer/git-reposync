@@ -3,7 +3,8 @@
 # https://gitpython.readthedocs.io/en/stable/tutorial.html#tutorial-label
 
 from git import Repo, Remote
-import os
+import os, sys
+import getopt
 
 import syncconfig
 
@@ -40,6 +41,21 @@ def syncrepo(workdir, user, passw, src, dst, srcbranch, dstbranch):
     remoteto.push(refspec=dstbranch)
 
 ############## main ###################
+
+configfile = "syncconfig.py"
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hf:",["conf="])
+except getopt.GetoptError:
+    print 'test.py -f <configfile>'
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print 'test.py -f <configfile>'
+        sys.exit()
+    elif opt in ("-f", "--ifile"):
+        config = arg
+print 'Config file is "', configfile
+
 
 for repodata in REPOLIST:
     print(repodata)
