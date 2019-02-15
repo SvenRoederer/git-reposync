@@ -1,41 +1,11 @@
 #!/usr/bin/python
 
 from git import Repo, Remote
-import os,datetime
+import os, datetime, sys
 import re,tempfile
+import getopt
+from importlib import import_module
 
-REPODIR="/home/sven/git-sync/repos"
-
-REPOLIST = {
-    "repodir" : "ffb-firmware",
-    "workbranch" : "daily_upstream",
-    "srcremote" : "ff-berlin",
-    }
-
-UPDATES = {
-  "openwrt": {
-    "repodir" : "openwrt-core",
-    "branch" : "master",
-    "committext" : "Update to HEAD of OpenWrt-master",
-    },
-  "luci": {
-    "repodir" : "openwrt-luci",
-    "branch" : "master",
-    "committext" : "Update LuCI-feed to yesterdays HEAD of master",
-    },
-  "packages": {
-    "repodir" : "openwrt-packages",
-    "branch" : "master",
-    "committext" : "Updating packages to yesterdays HEAD of master",
-    },
-  "routing": {
-    "repodir" : "openwrt-routing",
-    "branch" : "master",
-    "committext" : "Updating routing to yesterdays HEAD of master",
-    },
-  }
-
-######################################################
 
 def isRepoAFeed(reponame):
   FEEDS = {
@@ -147,6 +117,25 @@ def makeCommitMsg(reponame, message, oldcommit, newcommit):
 COMMITS_INITIAL = {}
 COMMITS_FINAL   = {}
 
+configfile = "ff-berlin_update"
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hf:",["conf="])
+except getopt.GetoptError:
+    print 'test.py -f <configfile>'
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print 'test.py -f <configfile>'
+        sys.exit()
+    elif opt in ("-f", "--ifile"):
+        configfile = arg
+print('Config file is', configfile)
+
+config = import_module(configfile)
+
+REPODIR = config.REPODIR
+REPOLIST = config.REPOLIST
+UPDATES = config.UPDATES
 
 TODAY = datetime.datetime.now()
 DATELIMIT = TODAY-datetime.timedelta(days=0)
