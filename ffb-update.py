@@ -62,7 +62,7 @@ def getYesterdaysLastCommit(reponame, date, branch = 'master'):
     print("faulty reponame")
     sys.quit(10)
 
-  shellcmd = "(cd %s; git rev-list -1 --before='%s' %s)" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), date.strftime("%Y-%m-%d"), branch)
+  shellcmd = "(cd %s; git >/dev/null fetch --all; git rev-list -1 --before='%s' %s)" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), date.strftime("%Y-%m-%d"), branch)
   print(shellcmd)
   result = os.popen(shellcmd).readlines()
 
