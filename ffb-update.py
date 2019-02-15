@@ -49,7 +49,7 @@ def getCurrentCommit(reponame):
   return(commit)
 
 
-def getYesterdaysLastCommit(reponame, date):
+def getYesterdaysLastCommit(reponame, date, branch = 'master'):
 
   if reponame == "openwrt":
     filename = "config.mk"
@@ -62,7 +62,7 @@ def getYesterdaysLastCommit(reponame, date):
     print("faulty reponame")
     sys.quit(10)
 
-  shellcmd = "(cd %s; git rev-list -1 --before='%s' master)" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), date.strftime("%Y-%m-%d"))
+  shellcmd = "(cd %s; git rev-list -1 --before='%s' %s)" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), date.strftime("%Y-%m-%d"), branch)
   print(shellcmd)
   result = os.popen(shellcmd).readlines()
 
