@@ -58,6 +58,9 @@ def getYesterdaysLastCommit(reponame, date):
     filename = "feeds.conf"
     lineRegex = "^src-git " + reponame + "*.\^"
     lineRegex = "^src-git " + reponame + " .*\^[a-f0-9]{40}"
+  else:
+    print("faulty reponame")
+    sys.quit(10)
 
   shellcmd = "(cd %s; git rev-list -1 --before='%s' master)" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), date.strftime("%Y-%m-%d"))
   print(shellcmd)
