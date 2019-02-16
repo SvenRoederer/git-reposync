@@ -7,15 +7,23 @@ import getopt
 from importlib import import_module
 
 
-def isRepoAFeed(reponame):
-  FEEDS = {
-    "packages",
-    "luci",
-    "routing", 
-    "packages_berlin",
-    "gluon",
-  }
+def getFeeds():
+  feeds = []
+  with open(os.path.join(REPODIR, REPOLIST["repodir"], "feeds.conf")) as f:
+    for line in f:
+#      print(line)
+      if line.startswith("#"):
+        pass
+      elif line == os.linesep:
+        pass
+      else:
+        feedname = line.split(" ", 3)[1]
+        print("found feed: %s" % feedname)
+        feeds.append(feedname)
+  f.closed
+  return feeds
 
+def isRepoAFeed(reponame):
   if reponame in FEEDS:
     return True
   else:
@@ -144,6 +152,7 @@ TODAY = datetime.datetime.now()
 DATELIMIT = TODAY-datetime.timedelta(days=0)
 print(DATELIMIT)
 
+FEEDS = getFeeds()
 shellcmd = "(cd %s; git checkout '%s')" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["workbranch"])
 print(shellcmd)
 result = os.popen(shellcmd).readlines()
