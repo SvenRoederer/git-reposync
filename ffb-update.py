@@ -165,30 +165,20 @@ result = os.popen(shellcmd).readlines()
 
 
 COMMITS_INITIAL["openwrt"] = getCurrentCommit("openwrt")
-COMMITS_INITIAL["packages"] = getCurrentCommit("packages")
-COMMITS_INITIAL["luci"] = getCurrentCommit("luci")
-COMMITS_INITIAL["routing"] = getCurrentCommit("routing")
-COMMITS_INITIAL["packages_berlin"] = getCurrentCommit("packages_berlin")
-COMMITS_INITIAL["gluon"] = getCurrentCommit("gluon")
+for feed in FEEDS:
+  if feed in UPDATES.keys():
+    COMMITS_INITIAL[feed] = getCurrentCommit(feed)
 print("initial: %s" % (COMMITS_INITIAL))
 
 COMMITS_FINAL["openwrt"] = getYesterdaysLastCommit("openwrt", DATELIMIT, UPDATES["openwrt"]["branch"])
-COMMITS_FINAL["packages"] = getYesterdaysLastCommit("packages", DATELIMIT, UPDATES["packages"]["branch"])
-COMMITS_FINAL["luci"] = getYesterdaysLastCommit("luci", DATELIMIT, UPDATES["luci"]["branch"])
-COMMITS_FINAL["routing"] = getYesterdaysLastCommit("routing", DATELIMIT, UPDATES["routing"]["branch"])
-COMMITS_FINAL["packages_berlin"] = getYesterdaysLastCommit("packages_berlin", DATELIMIT, UPDATES["packages_berlin"]["branch"])
-COMMITS_FINAL["gluon"] = getYesterdaysLastCommit("gluon", DATELIMIT, UPDATES["gluon"]["branch"])
+for feed in FEEDS:
+  if feed in UPDATES.keys():
+    COMMITS_FINAL[feed] = getYesterdaysLastCommit(feed, DATELIMIT, UPDATES[feed]["branch"])
 print("target: %s" % (COMMITS_FINAL))
 
 updateCommit("openwrt", COMMITS_INITIAL["openwrt"], COMMITS_FINAL["openwrt"])
 makeCommitMsg("openwrt", UPDATES["openwrt"]["committext"], COMMITS_INITIAL["openwrt"], COMMITS_FINAL["openwrt"])
-updateCommit("packages", COMMITS_INITIAL["packages"], COMMITS_FINAL["packages"])
-makeCommitMsg("packages", UPDATES["packages"]["committext"], COMMITS_INITIAL["packages"], COMMITS_FINAL["packages"])
-updateCommit("luci", COMMITS_INITIAL["luci"], COMMITS_FINAL["luci"])
-makeCommitMsg("luci", UPDATES["luci"]["committext"], COMMITS_INITIAL["luci"], COMMITS_FINAL["luci"])
-updateCommit("routing", COMMITS_INITIAL["routing"], COMMITS_FINAL["routing"])
-makeCommitMsg("routing", UPDATES["routing"]["committext"], COMMITS_INITIAL["routing"], COMMITS_FINAL["routing"])
-updateCommit("packages_berlin", COMMITS_INITIAL["packages_berlin"], COMMITS_FINAL["packages_berlin"])
-makeCommitMsg("packages_berlin", UPDATES["packages_berlin"]["committext"], COMMITS_INITIAL["packages_berlin"], COMMITS_FINAL["packages_berlin"])
-updateCommit("gluon", COMMITS_INITIAL["gluon"], COMMITS_FINAL["gluon"])
-makeCommitMsg("gluon", UPDATES["gluon"]["committext"], COMMITS_INITIAL["gluon"], COMMITS_FINAL["gluon"])
+for feed in FEEDS:
+  if feed in UPDATES.keys():
+    updateCommit(feed, COMMITS_INITIAL[feed], COMMITS_FINAL[feed])
+    makeCommitMsg(feed, UPDATES[feed]["committext"], COMMITS_INITIAL[feed], COMMITS_FINAL[feed])
