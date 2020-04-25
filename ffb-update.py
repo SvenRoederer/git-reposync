@@ -182,3 +182,9 @@ for feed in FEEDS:
   if feed in UPDATES.keys():
     updateCommit(feed, COMMITS_INITIAL[feed], COMMITS_FINAL[feed])
     makeCommitMsg(feed, UPDATES[feed]["committext"], COMMITS_INITIAL[feed], COMMITS_FINAL[feed])
+
+if REPOLIST["autopush"]:
+  print "pushing changes to repo"
+  shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["srcremote"])
+  print(shellcmd)
+  result = os.popen(shellcmd).readlines()
