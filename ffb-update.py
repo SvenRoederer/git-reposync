@@ -129,8 +129,11 @@ COMMITS_INITIAL = {}
 COMMITS_FINAL   = {}
 
 configfile = "ff-berlin_update"
+TODAY = datetime.datetime.now()
+DATELIMIT = TODAY-datetime.timedelta(days=0)
+
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hf:",["conf="])
+    opts, args = getopt.getopt(sys.argv[1:],"hf:t:",["conf="])
 except getopt.GetoptError:
     print 'test.py -f <configfile>'
     sys.exit(2)
@@ -140,6 +143,12 @@ for opt, arg in opts:
         sys.exit()
     elif opt in ("-f", "--ifile"):
         configfile = arg
+    elif opt in ("-t", "--todate"):
+        try:
+           DATELIMIT = datetime.datetime.strptime(arg, "%Y-%m-%d")
+        except ValueError:
+           print("Unable to decode date. is format YYYY-MM-DD?")
+           sys.exit()
 print('Config file is', configfile)
 
 config = import_module(configfile)
@@ -148,8 +157,6 @@ REPODIR = config.REPODIR
 REPOLIST = config.REPOLIST
 UPDATES = config.UPDATES
 
-TODAY = datetime.datetime.now()
-DATELIMIT = TODAY-datetime.timedelta(days=0)
 print(DATELIMIT)
 
 FEEDS = getFeeds()
