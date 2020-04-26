@@ -21,7 +21,7 @@ def getRepoNames():
       elif line.startswith("OPENWRT_REPO="):
         repos.append("openwrt")
 #      elif re.match("^OPENWRT_COMMIT=[a-f0-9]{40}", line):
-      elif re.match("^OPENWRT_(COMMIT|BRANCH)=\w+$", line):
+      elif re.match("^OPENWRT_(COMMIT|BRANCH)=[a-zA-Z0-9_\-\.]+$", line):
         print("Found %s" % line.strip())
         pass
       elif line.startswith("GLUON_FEEDS="):
