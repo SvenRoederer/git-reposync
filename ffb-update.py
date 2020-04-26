@@ -177,6 +177,10 @@ result = os.popen(shellcmd).readlines()
 
 
 MODULES = getRepoNames()
+for module in MODULES:
+  if not module in UPDATES.keys():
+    print("remove repo %s, which is not defined in config-file." % module)
+    MODULES.remove(module)
 
 for module in MODULES:
   COMMITS_INITIAL[module] = getCurrentCommit(module)
