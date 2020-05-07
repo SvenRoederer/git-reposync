@@ -7,41 +7,48 @@ import getopt
 from importlib import import_module
 
 
-def getFeeds():
-  feeds = []
-  with open(os.path.join(REPODIR, REPOLIST["repodir"], "feeds.conf")) as f:
+def getRepoNames():
+  repos = []
+  with open(os.path.join(REPODIR, REPOLIST["repodir"], "modules")) as f:
     for line in f:
 #      print(line)
       if line.startswith("#"):
         pass
       elif line == os.linesep:
         pass
+      elif line.startswith("PACKAGES_"):
+        pass
+      elif line.startswith("OPENWRT_REPO="):
+        repos.append("openwrt")
+#      elif re.match("^OPENWRT_COMMIT=[a-f0-9]{40}", line):
+      elif re.match("^OPENWRT_(COMMIT|BRANCH)=[a-zA-Z0-9_\-\.]+$", line):
+        print("Found %s" % line.strip())
+        pass
+      elif line.startswith("GLUON_FEEDS="):
+        bad_chars = ['\'', '\"'] 
+        packages=line.split("=")[1]
+#        print(packages)
+        packages = filter(lambda i: i not in bad_chars, packages)
+#        print(packages)
+        for repo in packages.split():
+          repos.append(repo.strip())
       else:
-        feedname = line.split(" ", 3)[1]
-        print("found feed: %s" % feedname)
-        feeds.append(feedname)
+        print("unknown line found in modules-file")
+        print("  %s" % line)
+        sys.exit(1)
   f.closed
-  return feeds
-
-def isRepoAFeed(reponame):
-  if reponame in FEEDS:
-    return True
-  else:
-    return False
+  return repos
 
 
 def getCurrentCommit(reponame):
 
   if reponame == "openwrt":
-    filename = "config.mk"
     lineRegex = "^OPENWRT_COMMIT="
-  elif isRepoAFeed(reponame):
-    filename = "feeds.conf"
-    lineRegex = "^src-git " + reponame + "*.\^"
-    lineRegex = "^src-git " + reponame + " .*\^[a-f0-9]{40}"
-#  print(filename)
+  else:
+    lineRegex = "^PACKAGES_" + reponame.upper() + " .*\^[a-f0-9]{40}"
+    lineRegex = "^PACKAGES_" + reponame.upper() + "_COMMIT=[a-f0-9]{40}"
 
-  file = open(os.path.join(REPODIR, REPOLIST["repodir"], filename), "r")
+  file = open(os.path.join(REPODIR, REPOLIST["repodir"], 'modules'), "r")
 
   for line in file:
 #    print line
@@ -60,17 +67,12 @@ def getCurrentCommit(reponame):
 def getYesterdaysLastCommit(reponame, date, branch = 'master'):
 
   if reponame == "openwrt":
-    filename = "config.mk"
     lineRegex = "^OPENWRT_COMMIT="
-  elif isRepoAFeed(reponame):
-    filename = "feeds.conf"
-    lineRegex = "^src-git " + reponame + "*.\^"
-    lineRegex = "^src-git " + reponame + " .*\^[a-f0-9]{40}"
   else:
-    print("faulty reponame")
-    sys.quit(10)
+    lineRegex = "^PACKAGES_" + reponame.upper() + " .*\^[a-f0-9]{40}"
+    lineRegex = "^PACKAGES_" + reponame.upper() + "_COMMIT=[a-f0-9]{40}"
 
-  shellcmd = "(cd %s; git >/dev/null fetch --all; git rev-list -1 --before='%s' %s)" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), date.strftime("%Y-%m-%d %H:%M"), branch)
+  shellcmd = "(cd %s; git >/dev/null fetch --all; git rev-list -1 --before='%s' %s)" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), date.strftime("%Y-%m-%d %H:%M:%S"), branch)
   print(shellcmd)
   result = os.popen(shellcmd).readlines()
 
@@ -82,14 +84,11 @@ def getYesterdaysLastCommit(reponame, date, branch = 'master'):
 def updateCommit(reponame, oldcommit, newcommit):
 
   if reponame == "openwrt":
-    filename = "config.mk"
     lineRegex = "^OPENWRT_COMMIT="
-  elif isRepoAFeed(reponame):
-    filename = "feeds.conf"
-    lineRegex = "^src-git " + reponame + "*.\^"
-    lineRegex = "^src-git " + reponame + " .*\^[a-f0-9]{40}"
+  else:
+    lineRegex = "^PACKAGES_" + reponame.upper() + "_COMMIT=[a-f0-9]{40}"
 
-  shellcmd = "sed -i -e 's/%s/%s/' %s" % (oldcommit, newcommit, os.path.join(REPODIR, REPOLIST["repodir"], filename))
+  shellcmd = "sed -i -e 's/%s/%s/' %s" % (oldcommit, newcommit, os.path.join(REPODIR, REPOLIST["repodir"], 'modules'))
   print(shellcmd)
   os.popen(shellcmd).readlines()
 
@@ -97,12 +96,9 @@ def updateCommit(reponame, oldcommit, newcommit):
 def makeCommitMsg(reponame, message, oldcommit, newcommit):
 
   if reponame == "openwrt":
-    filename = "config.mk"
     lineRegex = "^OPENWRT_COMMIT="
-  elif isRepoAFeed(reponame):
-    filename = "feeds.conf"
-    lineRegex = "^src-git " + reponame + "*.\^"
-    lineRegex = "^src-git " + reponame + " .*\^[a-f0-9]{40}"
+  else:
+    lineRegex = "^PACKAGES_" + reponame.upper() + "_COMMIT=[a-f0-9]{40}"
 
   shellcmd = "(cd %s; git log --oneline --reverse '%s..%s')" % (os.path.join(REPODIR, UPDATES[reponame]["repodir"]), oldcommit, newcommit)
   print(shellcmd)
@@ -113,7 +109,7 @@ def makeCommitMsg(reponame, message, oldcommit, newcommit):
   msgFile.write(os.linesep)
   msgFile.write(msgbody)
   msgFile.flush()
-  shellcmd = "(cd %s; git commit --no-edit -F '%s' '%s')" % (os.path.join(REPODIR, REPOLIST["repodir"]), msgFile.name, filename)
+  shellcmd = "(cd %s; git commit --no-edit -F '%s' '%s')" % (os.path.join(REPODIR, REPOLIST["repodir"]), msgFile.name, 'modules')
   print(shellcmd)
   result = os.popen(shellcmd).readlines()
   print(result)
@@ -129,8 +125,16 @@ COMMITS_INITIAL = {}
 COMMITS_FINAL   = {}
 
 configfile = "ff-berlin_update"
-TODAY = datetime.datetime.now()
-DATELIMIT = TODAY-datetime.timedelta(days=0)
+#TODAY = datetime.datetime.now()
+TODAY = datetime.datetime.now().date()
+#TODAY=datetime.datetime.min.time()
+DATELIMIT=datetime.date(TODAY.year, TODAY.month, TODAY.day)
+#DATELIMIT = DATELIMIT - datetime.timedelta(seconds=1)
+DATELIMIT = datetime.datetime.combine(TODAY-datetime.timedelta(days=1), datetime.time.max)
+#DATELIMIT = TODAY.date() + datetime.timedelta(hours=23)
+#datetime.timedelta(days=0, hours=23, minutes=59, seconds=59)
+#DATELIMIT = TODAY+datetime.timedelta(days=-3)
+#DATELIMIT = datetime.date(2020, 03, 01,)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hf:t:",["conf="])
@@ -159,11 +163,12 @@ UPDATES = config.UPDATES
 
 print(DATELIMIT)
 
-FEEDS = getFeeds()
+#sys.exit(1)
+
 shellcmd = "(cd %s; git checkout '%s')" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["workbranch"])
 print(shellcmd)
 result = os.popen(shellcmd).readlines()
-shellcmd = "(cd %s; git fetch )" % (os.path.join(REPODIR, REPOLIST["repodir"]))
+shellcmd = "(cd %s; git fetch %s)" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["srcremote"])
 print(shellcmd)
 result = os.popen(shellcmd).readlines()
 shellcmd = "(cd %s; git reset --hard %s/%s )" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["srcremote"], REPOLIST["workbranch"])
@@ -171,27 +176,26 @@ print(shellcmd)
 result = os.popen(shellcmd).readlines()
 
 
-COMMITS_INITIAL["openwrt"] = getCurrentCommit("openwrt")
-for feed in FEEDS:
-  if feed in UPDATES.keys():
-    COMMITS_INITIAL[feed] = getCurrentCommit(feed)
+MODULES = getRepoNames()
+for module in MODULES:
+  if not module in UPDATES.keys():
+    print("remove repo %s, which is not defined in config-file." % module)
+    MODULES.remove(module)
+
+for module in MODULES:
+  COMMITS_INITIAL[module] = getCurrentCommit(module)
 print("initial: %s" % (COMMITS_INITIAL))
 
-COMMITS_FINAL["openwrt"] = getYesterdaysLastCommit("openwrt", DATELIMIT, UPDATES["openwrt"]["branch"])
-for feed in FEEDS:
-  if feed in UPDATES.keys():
-    COMMITS_FINAL[feed] = getYesterdaysLastCommit(feed, DATELIMIT, UPDATES[feed]["branch"])
+for module in MODULES:
+  COMMITS_FINAL[module] = getYesterdaysLastCommit(module, DATELIMIT, UPDATES[module]["branch"])
 print("target: %s" % (COMMITS_FINAL))
 
-updateCommit("openwrt", COMMITS_INITIAL["openwrt"], COMMITS_FINAL["openwrt"])
-makeCommitMsg("openwrt", UPDATES["openwrt"]["committext"], COMMITS_INITIAL["openwrt"], COMMITS_FINAL["openwrt"])
-for feed in FEEDS:
-  if feed in UPDATES.keys():
-    updateCommit(feed, COMMITS_INITIAL[feed], COMMITS_FINAL[feed])
-    makeCommitMsg(feed, UPDATES[feed]["committext"], COMMITS_INITIAL[feed], COMMITS_FINAL[feed])
+for module in MODULES:
+  updateCommit(module, COMMITS_INITIAL[module], COMMITS_FINAL[module])
+  makeCommitMsg(module, UPDATES[module]["committext"], COMMITS_INITIAL[module], COMMITS_FINAL[module])
 
-if REPOLIST["autopush"]:
-  print "pushing changes to repo"
-  shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["srcremote"])
-  print(shellcmd)
-  result = os.popen(shellcmd).readlines()
+#if REPOLIST["autopush"]:
+#  print "pushing changes to repo"
+#  shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["srcremote"])
+#  print(shellcmd)
+#  result = os.popen(shellcmd).readlines()
