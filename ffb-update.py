@@ -191,6 +191,7 @@ for module in MODULES:
 # and the last element will not be tested. So using 2 lists and substracting them
 # https://www.geeksforgeeks.org/python-difference-two-lists/
 MODULES=(list(set(MODULES) - set(ignoreModules)))
+MODULES.reverse()
 
 for module in MODULES:
   COMMITS_INITIAL[module] = getCurrentCommit(module)
