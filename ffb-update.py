@@ -194,8 +194,8 @@ for module in MODULES:
   updateCommit(module, COMMITS_INITIAL[module], COMMITS_FINAL[module])
   makeCommitMsg(module, UPDATES[module]["committext"], COMMITS_INITIAL[module], COMMITS_FINAL[module])
 
-#if REPOLIST["autopush"]:
-#  print "pushing changes to repo"
-#  shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["srcremote"])
-#  print(shellcmd)
-#  result = os.popen(shellcmd).readlines()
+if REPOLIST["autopush"]:
+  print "pushing changes to repo"
+  shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["srcremote"])
+  print(shellcmd)
+  result = os.popen(shellcmd).readlines()
