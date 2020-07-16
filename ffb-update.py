@@ -161,6 +161,9 @@ REPODIR = config.REPODIR
 REPOLIST = config.REPOLIST
 UPDATES = config.UPDATES
 
+if not REPOLIST.has_key("dstremote"):
+    REPOLIST["dstremote"] = REPOLIST["srcremote"]
+
 print(DATELIMIT)
 
 #sys.exit(1)
@@ -196,6 +199,6 @@ for module in MODULES:
 
 if REPOLIST.has_key("autopush") and REPOLIST["autopush"]:
   print "pushing changes to repo"
-  shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["srcremote"])
+  shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["dstremote"])
   print(shellcmd)
   result = os.popen(shellcmd).readlines()
