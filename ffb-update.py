@@ -180,10 +180,17 @@ result = os.popen(shellcmd).readlines()
 
 
 MODULES = getRepoNames()
+ignoreModules = []
 for module in MODULES:
+  print("testing module %s" % module)
   if not module in UPDATES.keys():
     print("remove repo %s, which is not defined in config-file." % module)
-    MODULES.remove(module)
+    ignoreModules.append(module)
+
+# removing the an individual module via MODULES.remove() will shorten the list by one element
+# and the last element will not be tested. So using 2 lists and substracting them
+# https://www.geeksforgeeks.org/python-difference-two-lists/
+MODULES=(list(set(MODULES) - set(ignoreModules)))
 
 for module in MODULES:
   COMMITS_INITIAL[module] = getCurrentCommit(module)
