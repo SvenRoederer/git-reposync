@@ -6,6 +6,8 @@ import re,tempfile
 import getopt
 from importlib import import_module
 
+def utc_to_local(utc_dt):
+    return utc_dt.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None)
 
 def getRepoNames():
   repos = []
@@ -164,6 +166,8 @@ UPDATES = config.UPDATES
 if not "dstremote" in REPOLIST:
     REPOLIST["dstremote"] = REPOLIST["srcremote"]
 
+print(DATELIMIT)
+DATELIMIT=utc_to_local(DATELIMIT)
 print(DATELIMIT)
 
 #sys.exit(1)
