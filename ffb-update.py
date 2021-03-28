@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from git import Repo, Remote
 import os, datetime, sys
@@ -28,10 +28,10 @@ def getRepoNames():
         bad_chars = ['\'', '\"'] 
         packages=line.split("=")[1]
 #        print(packages)
-        packages = filter(lambda i: i not in bad_chars, packages)
+        packages = ''.join( filter(lambda i: i not in bad_chars, packages) )
 #        print(packages)
         for repo in packages.split():
-          repos.append(repo.strip())
+          repos.append(repo)
       else:
         print("unknown line found in modules-file")
         print("  %s" % line)
@@ -53,7 +53,7 @@ def getCurrentCommit(reponame):
   for line in file:
 #    print line
     if re.search(lineRegex, line):
-      print line,
+      print (line)
       match = line.rstrip(os.linesep)
   file.close()
 
@@ -104,7 +104,7 @@ def makeCommitMsg(reponame, message, oldcommit, newcommit):
   print(shellcmd)
   msgbody = os.popen(shellcmd).read()
 
-  msgFile = tempfile.NamedTemporaryFile()
+  msgFile = tempfile.NamedTemporaryFile(mode='w')
   msgFile.write(message + os.linesep)
   msgFile.write(os.linesep)
   msgFile.write(msgbody)
@@ -139,11 +139,11 @@ DATELIMIT = datetime.datetime.combine(TODAY-datetime.timedelta(days=1), datetime
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hf:t:",["conf="])
 except getopt.GetoptError:
-    print 'test.py -f <configfile>'
+    print ('test.py -f <configfile>')
     sys.exit(2)
 for opt, arg in opts:
     if opt == '-h':
-        print 'test.py -f <configfile>'
+        print ('test.py -f <configfile>')
         sys.exit()
     elif opt in ("-f", "--ifile"):
         configfile = arg
@@ -161,7 +161,7 @@ REPODIR = config.REPODIR
 REPOLIST = config.REPOLIST
 UPDATES = config.UPDATES
 
-if not REPOLIST.has_key("dstremote"):
+if not "dstremote" in REPOLIST:
     REPOLIST["dstremote"] = REPOLIST["srcremote"]
 
 print(DATELIMIT)
@@ -205,8 +205,8 @@ for module in MODULES:
   updateCommit(module, COMMITS_INITIAL[module], COMMITS_FINAL[module])
   makeCommitMsg(module, UPDATES[module]["committext"], COMMITS_INITIAL[module], COMMITS_FINAL[module])
 
-if REPOLIST.has_key("autopush") and REPOLIST["autopush"]:
-  print "pushing changes to repo"
+if "autopush" in REPOLIST and REPOLIST["autopush"]:
+  print ("pushing changes to repo")
   shellcmd = "(cd %s; git push %s)" % (os.path.join(REPODIR,REPOLIST["repodir"]), REPOLIST["dstremote"])
   print(shellcmd)
   result = os.popen(shellcmd).readlines()
