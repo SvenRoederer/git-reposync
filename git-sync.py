@@ -42,11 +42,11 @@ configfile = "syncconfig"
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hf:",["conf="])
 except getopt.GetoptError:
-    print 'test.py -f <configfile>'
+    print('test.py -f <configfile>')
     sys.exit(2)
 for opt, arg in opts:
     if opt == '-h':
-        print 'test.py -f <configfile>'
+        print('test.py -f <configfile>')
         sys.exit()
     elif opt in ("-f", "--ifile"):
         configfile = arg
@@ -65,7 +65,7 @@ for repodata in REPOLIST:
     print(repodata["pass"])
     print(repodata["branches"])
     syncbranches=repodata["branches"]
-    for srcbranch, dstbranch in syncbranches.items():
+    for srcbranch, dstbranch in list(syncbranches.items()):
         print('sync %s to %s' % (srcbranch, dstbranch))
 #        print('sync %s/%s to %s/%s as user %s' % (repodata["srcrepo"], srcbranch, repodata["dstrepo"], dstbranch, repodata["user"]) )
         syncrepo( repodata["workdir"], repodata["user"], repodata["pass"], repodata["srcremote"], repodata["dstremote"], srcbranch, dstbranch)

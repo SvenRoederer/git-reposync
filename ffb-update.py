@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 from git import Repo, Remote
 import os, datetime, sys
@@ -31,7 +31,7 @@ def getRepoNames():
         bad_chars = ['\'', '\"'] 
         packages=line.split("=")[1]
 #        print(packages)
-        packages = ''.join( filter(lambda i: i not in bad_chars, packages) )
+        packages = ''.join( [i for i in packages if i not in bad_chars] )
 #        print(packages)
         for repo in packages.split():
           repos.append(repo)
@@ -220,7 +220,7 @@ MODULES = getRepoNames()
 ignoreModules = []
 for module in MODULES:
   print("testing module %s" % module)
-  if not module in UPDATES.keys():
+  if not module in list(UPDATES.keys()):
     print("remove repo %s, which is not defined in config-file." % module)
     ignoreModules.append(module)
 
