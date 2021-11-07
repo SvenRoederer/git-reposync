@@ -2,6 +2,7 @@
 
 from git import Repo, Remote
 import os, datetime, sys
+import subprocess
 import re,tempfile
 import getopt
 from importlib import import_module
@@ -120,6 +121,31 @@ def makeCommitMsg(reponame, message, oldcommit, newcommit):
 
   return 
 
+def runCommand(shellcmd, cwd=None):
+  retval = {}
+  try:
+    res = subprocess.Popen(shellcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, cwd=cwd)
+#os.path.join(REPODIR, REPOLIST["repodir"])
+  except OSError:
+    print("error: popen")
+    exit(-1) # if the subprocess call failed, there's not much point in continuing
+
+  res.wait() # wait for process to finish; this also sets the returncode variable inside 'res'
+  retval["rc"]=res.returncode
+  if retval["rc"] != 0:
+    print("  os.wait:exit status != 0\n")
+  else:
+    print("os.wait:({},{})".format(res.pid, retval["rc"]))
+
+# access the output from stdout
+  retval["stdout"]=res.stdout.read()
+  retval["stderr"]=res.stderr.read()
+  print("after read (stdout): {}".format(retval["stdout"]))
+  print("after read (stderr): {}".format(retval["stderr"]))
+
+  return retval
+
+
 
 ##############################################################
 
@@ -172,15 +198,22 @@ print(DATELIMIT)
 
 #sys.exit(1)
 
-shellcmd = "(cd %s; git checkout '%s')" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["workbranch"])
+shellcmd = ["git", "checkout", REPOLIST["workbranch"]]
 print(shellcmd)
-result = os.popen(shellcmd).readlines()
-shellcmd = "(cd %s; git fetch %s)" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["srcremote"])
+runCommand(shellcmd, cwd=os.path.join(REPODIR, REPOLIST["repodir"]))
+
+shellcmd = ["git", "fetch", REPOLIST["srcremote"]]
 print(shellcmd)
-result = os.popen(shellcmd).readlines()
-shellcmd = "(cd %s; git reset --hard %s/%s )" % (os.path.join(REPODIR, REPOLIST["repodir"]), REPOLIST["srcremote"], REPOLIST["workbranch"])
+if runCommand(shellcmd, cwd=os.path.join(REPODIR, REPOLIST["repodir"]))["rc"] != 0:
+    print("errored out!!")
+    sys.exit(1)
+
+
+shellcmd = ["git", "reset", "--hard", "%s/%s" % (REPOLIST["srcremote"], REPOLIST["workbranch"]) ]
 print(shellcmd)
-result = os.popen(shellcmd).readlines()
+if runCommand(shellcmd, cwd=os.path.join(REPODIR, REPOLIST["repodir"]))["rc"] != 0:
+    print("errored out!!")
+    sys.exit(1)
 
 
 MODULES = getRepoNames()
